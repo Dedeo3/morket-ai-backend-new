@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
+import axios from "axios";
+
 
 import express from 'express';
 import jwt from 'jsonwebtoken';
@@ -59,6 +61,43 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+app.post('/ai-morket', async(req, res)=>{
+  try {
+    if (!Array.isArray(req.body.messages)) {
+      return res.status(422).json({
+        message: "your messages is not valid",
+      });
+    }
+    // console.log("body ai:", req.body.messages)
+    const result = await axios.post(
+      `${process.env.AI_BASE_URL}/v1/chat/completions`,
+      {
+        model: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+        messages: req.body.messages,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.AI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    // console.log("result:", result)
+    if (!result.data) {
+      return res.status(401).json({
+        message: "your promp is nothing",
+      });
+    }
+
+    return res.status(200).json(result.data);
+  } catch (err) {
+    res.status(err.status || 500).json({
+      message: err.message || "Something went wrong",
+      error: err.error || null
+    });
+  }
+})
 
 // Login
 app.post('/login', async (req, res) => {
