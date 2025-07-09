@@ -95,6 +95,10 @@ app.post('/logout', authenticateToken, (req, res) => {
   res.json({ message: 'Logged out successfully' });
 });
 
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
 // ✅ Get all ListItem
 app.get('/list-items', async (req, res) => {
   try {
