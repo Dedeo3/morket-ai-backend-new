@@ -64,17 +64,26 @@ app.post('/register', async (req, res) => {
 
 app.post('/ai-morket', async(req, res)=>{
   try {
-    if (!Array.isArray(req.body.messages)) {
-      return res.status(422).json({
-        message: "your messages is not valid",
-      });
-    }
+    const items = await prisma.listItem.findMany();
+    // console.log("items:",items)
+    // console.log("message", req.body)
+    const itemJson = JSON.stringify(items);
     // console.log("body ai:", req.body.messages)
+    // const roleSystem = `posisikan kamu adalah Asisten Morket Supermarket. Barang yang tersedia (hanya sebagian): ${itemJson}`
     const result = await axios.post(
       `${process.env.AI_BASE_URL}/v1/chat/completions`,
       {
         model: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
-        messages: req.body.messages,
+        messages: [
+          {
+            role: "system",
+            content: `Kamu adalah asisten di Morket Supermarket. Berikut beberapa barang yang tersedia:\n${itemJson}`
+          },
+          {
+            role: "user",
+            content: String(req.body.messages)
+          }
+        ]
       },
       {
         headers: {
