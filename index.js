@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({credentials:true, origin:"*"}));
 app.use(bodyParser.json());
 
 const JWT_SECRET = process.env.JWT_SECRET;
